@@ -6,6 +6,8 @@ import os
 import math
 from glob import glob
 from scipy.optimize import linear_sum_assignment
+from matplotlib.colors import LinearSegmentedColormap
+from scipy.optimize import curve_fit
 
 
 
@@ -128,7 +130,7 @@ small_circles = [
 all_circles = [the_one] + small_circles + [medium_circle]
 
 # Папка с DICOM-файлами
-dicom_folder = '/home/beyong/Coding/NIR/Фантом МИФИ-20250427T183954Z-001/Фантом МИФИ/Корпус1_Вставка3_Крышка 2/MRI 14.04.2025/MRI_14.04.2025'
+dicom_folder = '/home/beyong/Coding/NIR/Phantom/Phantom/Phantom2/MRI2/MRI2'
 dicom_files = sorted(glob(os.path.join(dicom_folder, '*.dcm')))
 
 # Массивы для накопления ошибок
@@ -229,31 +231,46 @@ for slice_idx, dicom_file_path in enumerate(dicom_files):
 
 # Преобразование в numpy для построения карты ошибок
 all_xy_errors = np.array(all_xy_errors)
-
+all_xy_errors = all_xy_errors
 all_radius_errors = np.array(all_radius_errors)
 
-def smooth_errors(errors):
-    smoothed = []
-    for i in range(len(errors) - 2):  # Останавливаемся за 2 элемента до конца
-        window = errors[i:i+3]        # Берём 3 последовательных значения
-        avg = sum(window) / 3        # Вычисляем среднее
-        smoothed.append(avg)         # Добавляем в результат
-    return smoothed
+# def smooth_errors(errors):
+#     smoothed = []
+#     for i in range(len(errors) - 2):  # Останавливаемся за 2 элемента до конца
+#         window = errors[i:i+3]        # Берём 3 последовательных значения
+#         avg = sum(window) / 3        # Вычисляем среднее
+#         smoothed.append(avg)         # Добавляем в результат
+#     return smoothed
+#
+# def smooth_errors(errors):
+#     smoothed = []
+#     for i in range(len(errors) - 4):
+#         window = errors[i:i+5]
+#         avg = sum(window) / 5
+#         smoothed.append(avg)
+#     return smoothed
+#
+# all_xy_errors = smooth_errors(all_xy_errors)
+# all_radius_errors = smooth_errors(all_radius_errors)
 
-all_xy_errors = smooth_errors(all_xy_errors)
-all_radius_errors = smooth_errors(all_radius_errors)
+# Функция параболы
+def parabola(x, a, b, c):
+    return a * x**2 + b * x + c
+
+# Кастомная цветовая карта
 
 
-plt.figure(figsize=(18, 8))
-plt.subplot(1, 2, 1)
-img = plt.imshow(all_xy_errors, cmap='viridis', aspect='auto', vmin=0, vmax=np.percentile(all_xy_errors, 95))
-plt.colorbar(img, label="Координатная ошибка (пиксели)")
-plt.xlabel("Номер окружности")
-plt.ylabel("Номер среза")
-plt.title("Тепловая карта ошибок координат")
+plt.figure(figsize=(9, 8))
 
-# Аналогично для второй карты
-plt.subplot(1, 2, 2)
+# plt.plot(1, 2, 1)
+# img = plt.imshow(all_xy_errors, cmap='viridis', aspect='auto', vmin=0, vmax=np.percentile(all_xy_errors, 95))
+# plt.colorbar(img, label="Координатная ошибка (пиксели)")
+# plt.xlabel("Номер окружности")
+# plt.ylabel("Номер среза")
+# plt.title("Тепловая карта ошибок координат")
+
+# # Аналогично для второй карты
+plt.plot(1, 2, 2)
 img2 = plt.imshow(all_radius_errors, cmap='viridis', aspect='auto')
 plt.colorbar(img2, label="Ошибка радиуса (пиксели)")
 plt.xlabel("Номер окружности")

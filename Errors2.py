@@ -122,7 +122,7 @@ def calculate_errors(array1, array2):
     return coordinate_errors, radius_errors
 
 # Путь к DICOM-файлу
-dicom_file_path = '/home/beyong/Coding/NIR/Фантом МИФИ-20250427T183954Z-001/Фантом МИФИ/Корпус1_Вставка3_Крышка 2/MRI 14.04.2025/MRI_14.04.2025/1.2.840.113619.2.312.4120.8418826.10211.1744608086.639.dcm'
+dicom_file_path = '/home/beyong/Coding/NIR/Phantom/Phantom/Phantom2/MRI2/MRI2/1.2.840.113619.2.312.4120.8418826.10211.1744608086.630.dcm'
 
 # Чтение DICOM-файла
 dataset = pydicom.dcmread(dicom_file_path)
@@ -148,7 +148,7 @@ _, thresh = cv2.threshold(blurred, 0, 255, cv2.THRESH_BINARY + cv2.THRESH_OTSU)
 # Создание маски для ограничения области поиска контуров
 center_x, center_y = image.shape[1] // 2, image.shape[0] // 2
 mask = np.zeros_like(thresh)
-cv2.circle(mask, (center_x, center_y), 83, 255, -1)
+cv2.circle(mask, (center_x, center_y), 84, 255, -1)
 
 # Применение маски
 masked_thresh = cv2.bitwise_and(thresh, mask)
@@ -176,12 +176,27 @@ for cnt in contours:
         perimeter = cv2.arcLength(cnt, True)
         approx = cv2.approxPolyDP(cnt, 0.02 * perimeter, True)
         circularity = (4 * math.pi * area) / (perimeter ** 2) if perimeter > 0 else 0
-        if len(approx) > 5 and circularity > 0.7:  # Учитываем только достаточно круглые контуры
+        if len(approx) > 4 and circularity > 0.7:  # Учитываем только достаточно круглые контуры
             center, avg_radius = calculate_average_center_and_radius(cnt)
             if center is not None and center[0] < 199:
                 centers_and_radii.append((center, avg_radius))
                 cv2.circle(output_image, (int(center[0]), int(center[1])), int(avg_radius), (0, 0, 255), 1)
 
+# Создание SVG изображения
+width, height = image.shape[1], image.shape[0]
+dwg = svgwrite.Drawing('contours_with_circles.svg', size=(width, height))
+
+# Добавляем контуры как многоугольники в SVG
+for cnt in contours:
+    points = cnt[:, 0, :].tolist()
+    dwg.add(dwg.polygon(points, fill='none', stroke='black'))
+
+# Добавляем окружности по центрам и радиусам
+for center, radius in centers_and_radii:
+        dwg.add(dwg.rect(insert=center, size=(1, 1), fill="red"))
+
+for center, radius in centers_and_radii:
+    dwg.add(dwg.circle(center, r=radius, stroke='red', fill='none'))
 
 def find_max_radius(centers_and_radii):
     max_radius = 0
@@ -270,33 +285,59 @@ for point in acc_sorted_points:
 for point in nonacc_sorted_points:
         print(f"Nonaccurate: {point}")
 
+new_errors = []
 xy_errors, radius_errors = [], []
 xy_errors, radius_errors = calculate_errors(acc_sorted_points, nonacc_sorted_points)
+new_errors, radius_errors = calculate_errors(acc_sorted_points, nonacc_sorted_points)
 
+
+# def smooth_errors(errors):
+#     smoothed = []
+#     for i in range(len(errors) - 5):  # Останавливаемся за 2 элемента до конца
+#         window = errors[i:i+5]        # Берём 3 последовательных значения
+#         avg = sum(window) / 5        # Вычисляем среднее
+#         smoothed.append(avg)         # Добавляем в результат
+#     return smoothed
+xy_errors = np.array(xy_errors)
+xy_errors = xy_errors / 1.7
+radius_errors = np.array(radius_errors)
+# new_errors = np.array(new_errors)
+# new_errors = new_errors /1.7
+#
+# xy_errors = smooth_errors(xy_errors)
+# radius_errors = smooth_errors(radius_errors)
 
 y_axis = []
 for i in range (0, len(xy_errors)):
     y_axis.append(i)
 
+# y_axis1 = []
+# for i in range (0, len(new_errors)):
+#     y_axis1.append(i)
+
 plt.figure(figsize=(12, 6))
 
-plt.subplot(1, 2, 1)
-plt.plot(y_axis, radius_errors, label='Radius error', marker="o")
-plt.title('Ошибка для радиуса')
-
-plt.subplot(1, 2, 2)
-plt.plot(y_axis, xy_errors, label='X or Y error', marker="o")
-plt.title('Ошибка для координат')
-
 # plt.subplot(1, 2, 1)
-# plt.imshow(image, cmap='gray')
-# plt.title('Исходное изображение')
-# plt.axis('off')
+# plt.plot(y_axis, radius_errors, label='Radius error', marker="o")
+# plt.title('Ошибка для радиуса')
 #
 # plt.subplot(1, 2, 2)
-# plt.imshow(output_image)
-# plt.title('Изображение с контурами и окружностями')
-# plt.axis('off')
-# plt.savefig('output.png')
+# plt.plot(y_axis, xy_errors, label='X or Y error', marker="o")
+# plt.title('Ошибка для координат')
+
+# plt.subplot(1, 2, 2)
+# plt.plot(y_axis1, new_errors, label='X or Y error', marker="o")
+# plt.title('Ошибка для координат')
+
+plt.subplot(1, 2, 1)
+plt.imshow(image, cmap='gray')
+plt.title('Исходное изображение')
+plt.axis('off')
+
+plt.subplot(1, 2, 2)
+plt.imshow(output_image)
+plt.title('Изображение с контурами и окружностями')
+plt.axis('off')
+plt.savefig('output.png')
 
 plt.show()

@@ -226,31 +226,40 @@ all_xy_errors = np.array(all_xy_errors)
 
 all_radius_errors = np.array(all_radius_errors)
 
-def smooth_errors(errors):
-    smoothed = []
-    for i in range(len(errors) - 2):  # Останавливаемся за 2 элемента до конца
-        window = errors[i:i+3]        # Берём 3 последовательных значения
-        avg = sum(window) / 3        # Вычисляем среднее
-        smoothed.append(avg)         # Добавляем в результат
-    return smoothed
+# def smooth_errors(errors):
+#     smoothed = []
+#     for i in range(len(errors) - 2):  # Останавливаемся за 2 элемента до конца
+#         window = errors[i:i+3]        # Берём 3 последовательных значения
+#         avg = sum(window) / 3        # Вычисляем среднее
+#         smoothed.append(avg)         # Добавляем в результат
+#     return smoothed
 
-all_xy_errors = smooth_errors(all_xy_errors)
-all_radius_errors = smooth_errors(all_radius_errors)
+# def smooth_errors(errors):
+#     smoothed = []
+#     for i in range(len(errors) - 5):  # Останавливаемся за 2 элемента до конца
+#         window = errors[i:i+5]        # Берём 3 последовательных значения
+#         avg = sum(window) / 5        # Вычисляем среднее
+#         smoothed.append(avg)         # Добавляем в результат
+#     return smoothed
+#
+# all_xy_errors = smooth_errors(all_xy_errors)
+# all_radius_errors = smooth_errors(all_radius_errors)
 
-plt.figure(figsize=(18, 8))
-plt.subplot(1, 2, 1)
+plt.figure(figsize=(9, 8))
+
+plt.plot(1, 2, 1)
 img = plt.imshow(all_xy_errors, cmap='viridis', aspect='auto', vmin=0, vmax=np.percentile(all_xy_errors, 95))
 plt.colorbar(img, label="Координатная ошибка (пиксели)")
 plt.xlabel("Номер окружности")
 plt.ylabel("Номер среза")
 plt.title("Тепловая карта ошибок координат")
 
-# Аналогично для второй карты
-plt.subplot(1, 2, 2)
-img2 = plt.imshow(all_radius_errors, cmap='viridis', aspect='auto')
-plt.colorbar(img2, label="Ошибка радиуса (пиксели)")
-plt.xlabel("Номер окружности")
-plt.title("Тепловая карта ошибок радиуса")
+# # Аналогично для второй карты
+# plt.plot(1, 2, 2)
+# img2 = plt.imshow(all_radius_errors, cmap='viridis', aspect='auto')
+# plt.colorbar(img2, label="Ошибка радиуса (пиксели)")
+# plt.xlabel("Номер окружности")
+# plt.title("Тепловая карта ошибок радиуса")
 
 plt.tight_layout()
 plt.show()

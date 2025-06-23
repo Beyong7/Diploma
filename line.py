@@ -177,13 +177,13 @@ def plot_error_distances(all_contours, reference_contour_index, reference_slice_
 
         # Фильтруем значения: сохраняем только те, где расстояние <= threshold
         if dist_0 <= threshold:
-            distances_0.append(dist_0/10)
+            distances_0.append(dist_0)
         if dist_90 <= threshold:
-            distances_90.append(dist_90/10)
+            distances_90.append(dist_90)
         if dist_180 <= threshold:
-            distances_180.append(dist_180/10)
+            distances_180.append(dist_180)
         if dist_last <= threshold:
-            distances_last.append(dist_last/10)
+            distances_last.append(dist_last)
         file_numbers.append(slice_number)
 
     # Строим графики
@@ -191,25 +191,25 @@ def plot_error_distances(all_contours, reference_contour_index, reference_slice_
 
     plt.subplot(2, 2, 1)
     plt.plot(file_numbers[:len(distances_0)], distances_0, marker='o')
-    plt.title("Ошибка для 0 градусов (фильтр <= 5)")
+    plt.title("Ошибка для 0 градусов")
     plt.xlabel("Номер файла")
     plt.ylabel("Ошибка")
 
     plt.subplot(2, 2, 2)
     plt.plot(file_numbers[:len(distances_90)], distances_90, marker='o')
-    plt.title("Ошибка для 90 градусов (фильтр <= 50)")
+    plt.title("Ошибка для 90 градусов")
     plt.xlabel("Номер файла")
     plt.ylabel("Ошибка")
 
     plt.subplot(2, 2, 3)
     plt.plot(file_numbers[:len(distances_180)], distances_180, marker='o')
-    plt.title("Ошибка для 180 градусов (фильтр <= 50)")
+    plt.title("Ошибка для 180 градусов")
     plt.xlabel("Номер файла")
     plt.ylabel("Ошибка")
 
     plt.subplot(2, 2, 4)
     plt.plot(file_numbers[:len(distances_last)], distances_last, marker='o')
-    plt.title("Ошибка для 270 градусов (фильтр <= 50)")
+    plt.title("Ошибка для 270 градусов")
     plt.xlabel("Номер файла")
     plt.ylabel("Ошибка")
 
@@ -276,5 +276,5 @@ def main(dicom_directory):
         plot_error_distances(all_contours, reference_contour_index=1, reference_slice_index=51, threshold=50)  # 80-й файл имеет индекс 52
 
 if __name__ == "__main__":
-    dicom_directory = "/home/beyong/coding/NIR/mri_clear"  # Укажите путь к вашим DICOM-файлам
+    dicom_directory = "/home/beyong/Coding/coding/NIR/mri_clear"  # Укажите путь к вашим DICOM-файлам
     main(dicom_directory)

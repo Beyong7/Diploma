@@ -175,16 +175,16 @@ width, height = image.shape[1], image.shape[0]
 dwg = svgwrite.Drawing('contours_with_circles.svg', size=(width, height))
 
 # Добавляем контуры как многоугольники в SVG
-# for cnt in contours:
-#     points = cnt[:, 0, :].tolist()
-#     dwg.add(dwg.polygon(points, fill='none', stroke='black'))
+for cnt in contours:
+    points = cnt[:, 0, :].tolist()
+    dwg.add(dwg.polygon(points, fill='none', stroke='black'))
 
-#Добавляем окружности по центрам и радиусам
-# for center, radius in centers_and_radii:
-#         dwg.add(dwg.rect(insert=center, size=(1, 1), fill="red"))
+# Добавляем окружности по центрам и радиусам
+for center, radius in centers_and_radii:
+        dwg.add(dwg.rect(insert=center, size=(1, 1), fill="red"))
 
-# for center, radius in centers_and_radii:
-#     dwg.add(dwg.circle(center, r=radius, stroke='red', fill='none'))
+for center, radius in centers_and_radii:
+    dwg.add(dwg.circle(center, r=radius, stroke='red', fill='none'))
 
 def find_max_radius(centers_and_radii):
     max_radius = 0

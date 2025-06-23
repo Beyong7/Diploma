@@ -173,6 +173,7 @@ def main(dicom_directory, isovalue=80, sigma=1.2):
 
     # Построение 3D модели
     create_3d_model(trimmed_volume, isovalue=isovalue, cut_y_plane=volume.shape[1] // 2, cut_point=(127.5, 127.5, 127.5), cut_normal=(0, 1, 0))
+    # create_3d_model(trimmed_volume, isovalue=isovalue, cut_normal=(0, 1, 0))
 
 if __name__ == "__main__":
     # Парсинг аргументов командной строки
